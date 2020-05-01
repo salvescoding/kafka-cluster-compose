@@ -25,7 +25,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
       KAFKA_BROKER_ID: 1
-      # KAFKA_NUM_PARTITIONS: 3
+      KAFKA_NUM_PARTITIONS: 3
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
     volumes:
       - ./zk-single-kafka-multiple/kafka1/data:/var/lib/kafka/data
@@ -43,7 +43,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
       KAFKA_BROKER_ID: 2
-      # KAFKA_NUM_PARTITIONS: 3
+      KAFKA_NUM_PARTITIONS: 3
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
     volumes:
       - ./zk-single-kafka-multiple/kafka2/data:/var/lib/kafka/data
@@ -62,14 +62,14 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
       KAFKA_BROKER_ID: 3
-      # KAFKA_NUM_PARTITIONS: 3
+      KAFKA_NUM_PARTITIONS: 3
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
     volumes:
       - ./zk-single-kafka-multiple/kafka3/data:/var/lib/kafka/data
     depends_on:
       - zoo1
 
-
+  # Producer kafka
   kafka-franz:
     image: quarkus-quickstarts/kafka-streams-franz:1.0
     container_name: kafka-franz
@@ -81,7 +81,7 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: "kafka1:19092, kafka2:19093, kafka3:19094"
     
-
+  # Consumer One
   kafka-reco-one:
     image: quarkus-quickstarts/kafka-streams-reco:1.0
     container_name: kafka-reco-one
@@ -90,6 +90,18 @@ services:
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
     ports: 
       - "8081:8080"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "kafka1:19092, kafka2:19093, kafka3:19094"
+  
+  # Consumer Two
+  kafka-reco-two:
+    image: quarkus-quickstarts/kafka-streams-reco:1.0
+    container_name: kafka-reco-two
+    build:
+      context: ../kafka-reco
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
+    ports: 
+      - "8082:8080"
     environment:
       KAFKA_BOOTSTRAP_SERVERS: "kafka1:19092, kafka2:19093, kafka3:19094"
     
