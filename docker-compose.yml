@@ -140,3 +140,16 @@ services:
       - kafka-franz
       - kafka-reco-one
       - kafka-reco-two 
+
+  ## Metrics exporter
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports: 
+      - 9100:9100
+  pushgateway:
+    image: prom/pushgateway:latest
+    container_name: pushgateway
+    ports: 
+      - 9091:9091
+  
