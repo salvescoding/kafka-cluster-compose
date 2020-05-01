@@ -4,6 +4,7 @@ services:
   zoo1:
     image: zookeeper:3.4.9
     hostname: zoo1
+    container_name: zookeeper
     ports:
       - "2181:2181"
     environment:
@@ -17,6 +18,7 @@ services:
   kafka1:
     image: confluentinc/cp-kafka:5.5.0
     hostname: kafka1
+    container_name: kafka1
     ports:
       - "9092:9092"
     environment:
@@ -35,6 +37,7 @@ services:
   kafka2:
     image: confluentinc/cp-kafka:5.5.0
     hostname: kafka2
+    container_name: kafka2
     ports:
       - "9093:9093"
     environment:
@@ -54,6 +57,7 @@ services:
   kafka3:
     image: confluentinc/cp-kafka:5.5.0
     hostname: kafka3
+    container_name: kafka3
     ports:
       - "9094:9094"
     environment:
@@ -72,7 +76,7 @@ services:
   # Producer kafka
   kafka-franz:
     image: quarkus-quickstarts/kafka-streams-franz:1.0
-    container_name: kafka-franz
+    container_name: franz
     build:
       context: ../kafka-franz
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
@@ -84,7 +88,7 @@ services:
   # Consumer One
   kafka-reco-one:
     image: quarkus-quickstarts/kafka-streams-reco:1.0
-    container_name: kafka-reco-one
+    container_name: reco-one
     build:
       context: ../kafka-reco
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
@@ -96,7 +100,7 @@ services:
   # Consumer Two
   kafka-reco-two:
     image: quarkus-quickstarts/kafka-streams-reco:1.0
-    container_name: kafka-reco-two
+    container_name: reco-two
     build:
       context: ../kafka-reco
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
@@ -105,5 +109,17 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: "kafka1:19092, kafka2:19093, kafka3:19094"
     
-
-  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes: 
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus:/prometheus
+    command: 
+      - --config.file=/etc/prometheus/prometheus.yml
+    depends_on:
+    - kafka-franz
+    - kafka-reco-one
+    - kafka-reco-two 
