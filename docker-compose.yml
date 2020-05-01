@@ -109,6 +109,7 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: "kafka1:19092, kafka2:19093, kafka3:19094"
     
+   ### Metrics 
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -123,3 +124,19 @@ services:
     - kafka-franz
     - kafka-reco-one
     - kafka-reco-two 
+
+  ## Visualization for metrics
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - 3000:3000
+    environment: 
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - kafka-franz
+      - kafka-reco-one
+      - kafka-reco-two 
